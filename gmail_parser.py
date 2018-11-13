@@ -2,11 +2,14 @@ from __future__ import print_function
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
+import base64
+import email
+from os import sys
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 
-def main():
+def main(recipient):
     """Shows basic usage of the Gmail API.
     Lists the user's Gmail labels.
     """
@@ -21,16 +24,31 @@ def main():
     service = build('gmail', 'v1', http=creds.authorize(Http()))
 
     # Call the Gmail API
-    results = service.users().labels().list(userId='me').execute()
-    labels = results.get('labels', [])
+    user_id = 'me'
+    query = 'from:' + recipient
+    response = service.users().messages().list(userId=user_id,
+                                            q=query).execute()
+    messages = []
+    if 'messages' in response:
+        messages.extend(response['messages'])
 
-    if not labels:
-        print('No labels found.')
-    else:
-        print('Labels:')
-        for label in labels:
-            print(label['name'])
+    while 'nextPageToken' in response:
+        page_token = response['nextPageToken']
+        response = service.users().messages().list(userId=user_id, q=query,
+                                        pageToken=page_token).execute()
+        messages.extend(response['messages'])
+
+    for message in messages:
+        msg_id = message['id']
+        message_content = service.users().messages().get(userId=user_id, id=msg_id, format='raw').execute()
+        msg_str = base64.urlsafe_b64decode(message_content['raw'].encode('ASCII'))
+        #print(msg_str)
+
+    print(len(messages) + ' messages')
+
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) < 2:
+        exit(-1)
+    main(sys.argv[1])
     
