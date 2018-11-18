@@ -10,18 +10,15 @@ from bs4 import BeautifulSoup
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 
-class DateAndRating:
-    def __init__(self, date, rating):
-        self.rating_date = date
-        self.rating = rating
-
 class Stock:
     def __init__(self, stock_name):
         self.stock_name = stock_name
-        self.ratings = []
+        self.rating_date = []
+        self.rating = []
 
     def append(self, date, rating):
-        self.ratings.append(DateAndRating(date, rating))
+        self.rating_date.append(date)
+        self.rating.append(rating)
 
 class Stocks:
     def __init__(self):
