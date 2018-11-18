@@ -87,7 +87,7 @@ def main(recipient):
             starString = ""
             if (img != None) :
                 if img.has_attr('alt'):
-                    starString = img.attrs['alt']
+                    starString = img.attrs['alt'][0]
             stocks.append(columns[0].get_text().strip(), starString, message_content['internalDate'])
 
     print(len(messages) + ' messages')
