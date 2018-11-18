@@ -10,10 +10,35 @@ from bs4 import BeautifulSoup
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 
-class StockRating:
-    def __init__(self, stock_name, stock_rating):
+class DateAndRating:
+    def __init__(self, date, rating):
+        self.rating_date = date
+        self.rating = rating
+
+class Stock:
+    def __init__(self, stock_name):
         self.stock_name = stock_name
-        self.stock_rating = stock_rating
+        self.ratings = []
+
+    def append(self, date, rating):
+        self.ratings.append(DateAndRating(date, rating))
+
+class Stocks:
+    def __init__(self):
+        self.stocks = []
+
+    def append(self, stock_name, stock_rating, date):
+        foundStock = False
+        for stock in self.stocks:
+            if stock.stock_name == stock_name:
+                stock.append(date, stock_rating)
+                foundStock = True
+        if foundStock == False:
+            stock = Stock(stock_name)
+            stock.append(date, stock_rating)
+            self.stocks.append(stock)
+
+        
 
 def main(recipient):
     """Shows basic usage of the Gmail API.
@@ -43,8 +68,8 @@ def main(recipient):
         response = service.users().messages().list(userId=user_id, q=query,
                                         pageToken=page_token).execute()
         messages.extend(response['messages'])
-        
-    stocks = []
+
+    stocks = Stocks()
     for message in messages:
         msg_id = message['id']
         message_content = service.users().messages().get(userId=user_id, id=msg_id, format='raw').execute()
@@ -66,7 +91,7 @@ def main(recipient):
             if (img != None) :
                 if img.has_attr('alt'):
                     starString = img.attrs['alt']
-            stocks.append(StockRating(columns[0].get_text().strip(), starString))
+            stocks.append(columns[0].get_text().strip(), starString, message_content['internalDate'])
 
     print(len(messages) + ' messages')
 
