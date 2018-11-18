@@ -6,6 +6,7 @@ import base64
 import email
 from os import sys
 from bs4 import BeautifulSoup
+import matplotlib.pyplot as plt
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
@@ -67,6 +68,7 @@ def main(recipient):
         messages.extend(response['messages'])
 
     stocks = Stocks()
+    count = 0
     for message in messages:
         msg_id = message['id']
         message_content = service.users().messages().get(userId=user_id, id=msg_id, format='raw').execute()
@@ -89,8 +91,17 @@ def main(recipient):
                 if img.has_attr('alt'):
                     starString = img.attrs['alt'][0]
             stocks.append(columns[0].get_text().strip(), starString, message_content['internalDate'])
+        
+        if (count > 10):
+            break # don't go overboard while testing
+        count += 1
 
     print(len(messages) + ' messages')
+    for stock in stocks.stocks:
+        plt.plot(stock.rating_date, stock.rating)
+        plt.title(stock.stock_name)
+        plt.show()
+
 
 
 if __name__ == '__main__':
