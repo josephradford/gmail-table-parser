@@ -84,6 +84,9 @@ def main(recipient):
         table = soup.find_all('table')[1].find_all('table')[0].find_all('table')[7]
 
         skippedFirst = False
+        ts = pd.to_datetime(message_content['internalDate'], unit='ms')
+        namesList = []
+        valuesList = []
         for row in table.find_all('tr'):
             if skippedFirst == False:
                 skippedFirst = True
@@ -95,16 +98,18 @@ def main(recipient):
                 if img.has_attr('alt'):
                     starString = img.attrs['alt'][0]
             stock_name = columns[0].get_text().strip()
-            stocks.append(stock_name, starString, message_content['internalDate'])
-            ts = pd.to_datetime(message_content['internalDate'], unit='ms')
-            df2 = pd.DataFrame([[starString]], columns=[stock_name], index=[[ts]])
+            #stocks.append(stock_name, starString, message_content['internalDate'])
+            #df2 = pd.DataFrame([[starString]], columns=[stock_name], index=[[ts]])
+            namesList.append(stock_name)
+            valuesList.append(int(starString))
             #if stock_name not in df:
             #    df[stock_name] = starString
-            if len(df) == 0:
-                df = df2
-            else:
-                frames = [df, df2]
-                df = pd.concat(frames, axis=1)
+            
+        df2 = pd.DataFrame([valuesList], columns=namesList, index=[[ts]])
+        if len(df) == 0:
+            df = df2
+        else:
+            df = pd.concat([df, df2], axis=0, sort=True)
         
         if (count > 10):
             break # don't go overboard while testing
