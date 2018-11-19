@@ -13,33 +13,6 @@ import numpy as np
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 
-class Stock:
-    def __init__(self, stock_name):
-        self.stock_name = stock_name
-        self.rating_date = []
-        self.rating = []
-
-    def append(self, date, rating):
-        self.rating_date.append(date)
-        self.rating.append(rating)
-
-class Stocks:
-    def __init__(self):
-        self.stocks = []
-
-    def append(self, stock_name, stock_rating, date):
-        foundStock = False
-        for stock in self.stocks:
-            if stock.stock_name == stock_name:
-                stock.append(date, stock_rating)
-                foundStock = True
-        if foundStock == False:
-            stock = Stock(stock_name)
-            stock.append(date, stock_rating)
-            self.stocks.append(stock)
-
-        
-
 def main(recipient):
     """Shows basic usage of the Gmail API.
     Lists the user's Gmail labels.
@@ -69,7 +42,6 @@ def main(recipient):
                                         pageToken=page_token).execute()
         messages.extend(response['messages'])
 
-    stocks = Stocks()
     count = 0
     #df = pd.read_pickle('foo.pkl')
     df = pd.DataFrame(index=pd.to_datetime([]))
@@ -98,12 +70,8 @@ def main(recipient):
                 if img.has_attr('alt'):
                     starString = img.attrs['alt'][0]
             stock_name = columns[0].get_text().strip()
-            #stocks.append(stock_name, starString, message_content['internalDate'])
-            #df2 = pd.DataFrame([[starString]], columns=[stock_name], index=[[ts]])
             namesList.append(stock_name)
             valuesList.append(int(starString))
-            #if stock_name not in df:
-            #    df[stock_name] = starString
             
         df2 = pd.DataFrame([valuesList], columns=namesList, index=[[ts]])
         if len(df) == 0:
