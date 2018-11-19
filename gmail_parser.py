@@ -96,7 +96,7 @@ def main(recipient):
             break # don't go overboard while testing
         count += 1
 
-    print(len(messages) + ' messages')
+    #print(len(messages) + ' messages')
     for stock in stocks.stocks:
         plt.plot(stock.rating_date, stock.rating)
         plt.title(stock.stock_name)
