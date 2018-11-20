@@ -3,3 +3,7 @@ credentials\.json
 token\.json
 
 \.vscode/
+
+*.pkl
+
+*.csv
