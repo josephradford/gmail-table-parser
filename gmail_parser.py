@@ -29,7 +29,7 @@ def main(recipient):
     service = build('gmail', 'v1', http=creds.authorize(Http()))
 
     try:
-        df = pd.read_csv('foo.csv')
+        df = pd.read_pickle('foo.pkl')
         query_date = int(df.index[-1][0].value / 1000000000)
     except FileNotFoundError:
         df = pd.DataFrame(index=pd.to_datetime([]))
@@ -63,6 +63,7 @@ def main(recipient):
 
         skippedFirst = False
         ts = pd.to_datetime(message_content['internalDate'], unit='ms')
+        print(ts)
         namesList = []
         valuesList = []
         for row in table.find_all('tr'):
@@ -88,11 +89,12 @@ def main(recipient):
         else:
             df = pd.concat([df, df2], axis=0, sort=True)
         
-        if (count > 10):
+        if (count > 30):
             break # don't go overboard while testing
         count += 1
-        df.to_csv('foo.csv')
+        df.to_pickle('foo.pkl')
 
+    df.plot()
 
 
 if __name__ == '__main__':
