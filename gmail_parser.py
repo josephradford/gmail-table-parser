@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import time
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
@@ -27,9 +28,16 @@ def main(recipient):
         creds = tools.run_flow(flow, store)
     service = build('gmail', 'v1', http=creds.authorize(Http()))
 
+    try:
+        df = pd.read_csv('foo.csv')
+        query_date = int(df.index[-1][0].value / 1000000000)
+    except FileNotFoundError:
+        df = pd.DataFrame(index=pd.to_datetime([]))
+        query_date = int(round(time.time()))
+
     # Call the Gmail API
     user_id = 'me'
-    query = 'from:' + recipient
+    query = 'from:' + recipient + ' before:' + str(query_date)
     response = service.users().messages().list(userId=user_id,
                                             q=query).execute()
     messages = []
@@ -43,8 +51,6 @@ def main(recipient):
         messages.extend(response['messages'])
 
     count = 0
-    #df = pd.read_pickle('foo.pkl')
-    df = pd.DataFrame(index=pd.to_datetime([]))
     for message in messages:
         msg_id = message['id']
         message_content = service.users().messages().get(userId=user_id, id=msg_id, format='raw').execute()
@@ -82,8 +88,7 @@ def main(recipient):
         if (count > 10):
             break # don't go overboard while testing
         count += 1
-        df.to_pickle('foo.pkl')
-
+        df.to_csv('foo.csv')
 
 
 
