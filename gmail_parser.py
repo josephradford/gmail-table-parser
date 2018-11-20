@@ -84,11 +84,6 @@ def main(recipient):
         count += 1
         df.to_pickle('foo.pkl')
 
-    #print(len(messages) + ' messages')
-    for stock in stocks.stocks:
-        plt.plot(stock.rating_date, stock.rating)
-        plt.title(stock.stock_name)
-        plt.show()
 
 
 
