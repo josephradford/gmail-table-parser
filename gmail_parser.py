@@ -77,7 +77,10 @@ def main(recipient):
                     starString = img.attrs['alt'][0]
             stock_name = columns[0].get_text().strip()
             namesList.append(stock_name)
-            valuesList.append(int(starString))
+            if len(starString) == 1:
+                valuesList.append(int(starString))
+            else:
+                continue
             
         df2 = pd.DataFrame([valuesList], columns=namesList, index=[[ts]])
         if len(df) == 0:
