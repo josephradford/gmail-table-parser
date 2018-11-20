@@ -64,6 +64,8 @@ def main(recipient):
         skippedFirst = False
         ts = pd.to_datetime(message_content['internalDate'], unit='ms')
         print(ts)
+        if ts.value == 0:
+            continue # ignore bad messages
         namesList = []
         valuesList = []
         for row in table.find_all('tr'):
